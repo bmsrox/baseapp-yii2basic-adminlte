@@ -1,92 +1,81 @@
-Yii 2 Basic Project Template
-============================
-
-Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
-rapidly creating small projects.
-
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
-
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-app-basic/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-app-basic/downloads.png)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Build Status](https://travis-ci.org/yiisoft/yii2-app-basic.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-basic)
-
-DIRECTORY STRUCTURE
--------------------
-
-      assets/             contains assets definition
-      commands/           contains console commands (controllers)
-      config/             contains application configurations
-      controllers/        contains Web controller classes
-      mail/               contains view files for e-mails
-      models/             contains model classes
-      runtime/            contains files generated during runtime
-      tests/              contains various tests for the basic application
-      vendor/             contains dependent 3rd-party packages
-      views/              contains view files for the Web application
-      web/                contains the entry script and Web resources
-
-
-
-REQUIREMENTS
-------------
-
-The minimum requirement by this project template that your Web server supports PHP 5.4.0.
-
-
-INSTALLATION
-------------
-
-### Install from an Archive File
-
-Extract the archive file downloaded from [yiiframework.com](http://www.yiiframework.com/download/) to
-a directory named `basic` that is directly under the Web root.
-
-You can then access the application through the following URL:
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-### Install via Composer
-
-If you do not have [Composer](http://getcomposer.org/), you may install it by following the instructions
-at [getcomposer.org](http://getcomposer.org/doc/00-intro.md#installation-nix).
-
-You can then install this project template using the following command:
-
-~~~
-php composer.phar global require "fxp/composer-asset-plugin:~1.0.0"
-php composer.phar create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic
-~~~
-
-Now you should be able to access the application through the following URL, assuming `basic` is the directory
-directly under the Web root.
-
-~~~
-http://localhost/basic/web/
-~~~
-
+Yii 2 Basic Project Template adminLTE 2.1.1
+===========================================
 
 CONFIGURATION
 -------------
 
-### Database
+Alter and add into the SiteController.
 
-Edit the file `config/db.php` with real data, for example:
+~~~
+    public function actionLogout()
+    {
+        Yii::$app->user->logout();
 
-```php
-return [
-    'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '1234',
-    'charset' => 'utf8',
-];
-```
+        return $this->redirect(Yii::$app->user->loginUrl);
+    }
 
-**NOTE:** Yii won't create the database for you, this has to be done manually before you can access it.
+    public function beforeAction($action)
+    {
+        if (parent::beforeAction($action)) {
+            // change layout for error action
+            if ($action->id=='login')
+                 $this->layout = 'login';
+            return true;
+        } else {
+            return false;
+        }
+    }
+~~~
 
-Also check and edit the other files in the `config/` directory to customize your application.
+Alter the method behaviors()
+
+alter 'config/web.php'
+
+set array keys:
+
+~~~
+    'layout'=>'column2',
+    'layoutPath'=>'@app/themes/adminLTE/layouts',
+
+    'components' => [
+        'urlManager' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'rules' => [
+                ''=>'site/index',
+                '<action:(index|login|logout)>'=>'site/<action>',
+                '<controller:\w+>/<id:\d+>' => '<controller>/view',
+                '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
+                '<controller:\w+>/<action:\w+>' => '<controller>/<action>'
+            ],
+        ],
+
+        Set the views path theme
+
+        'view' => [
+            'theme' => [
+                'pathMap' => ['@app/views' => '@app/themes/adminLTE'],
+                'baseUrl' => '@web/../themes/adminLTE',
+            ],
+        ],
+
+     ]
+~~~
+
+Config gii to generator from custom
+
+~~~
+$config['modules']['gii'] = [
+            'class' => 'yii\gii\Module',
+            'generators' => [ //here
+                'crud' => [ // generator name
+                    'class' => 'yii\gii\generators\crud\Generator', // generator class
+                    'templates' => [ //setting for out templates
+                        'custom' => '@app/vendor/yiisoft/yii2-gii/generators/crud/custom', // template name => path to template
+                    ]
+                ]
+            ],
+        ];
+~~~
+
