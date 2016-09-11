@@ -72,7 +72,7 @@ $config['modules']['gii'] = [
                 'crud' => [ // generator name
                     'class' => 'yii\gii\generators\crud\Generator', // generator class
                     'templates' => [ //setting for out templates
-                        'custom' => '@app/vendor/yiisoft/yii2-gii/generators/crud/custom', // template name => path to template
+                        'custom' => '@vendor/bmsrox/yii-adminlte-crud-template', // template name => path to template
                     ]
                 ]
             ],
